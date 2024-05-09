@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import './CrosswordGrid.css';
 
 interface CrosswordGridProps {
@@ -255,6 +255,7 @@ const CrosswordGrid = ({ width, height }: CrosswordGridProps) => {
   const [cells, setCells] = useState<Cell[][]>(initialCells(width, height));
   const [cursor, setCursor] = useState<Cursor>({row: 0, col: 0, direction: Direction.Across});
   const [clues] = useState<Clues>(initialClues());
+  const hiddenInputRef = useRef<HTMLInputElement>(null);
 
   const getClassName = (cell: Cell, rowIndex: number, colIndex: number) => {
     const classes = ['grid-cell'];
@@ -313,9 +314,9 @@ const CrosswordGrid = ({ width, height }: CrosswordGridProps) => {
       if (!cells[row][col].filled) {
         const clickedOnCursor = cursor && cursor.row === row && cursor.col === col;
         const newDirection = clickedOnCursor ? (cursor.direction === Direction.Across ? Direction.Down : Direction.Across) : cursor?.direction || Direction.Across;
-
         setCursor({row, col, direction: newDirection});
 
+        hiddenInputRef.current?.focus();
       }
     }
   }, [cells, cursor, updateNumbering]);
@@ -465,6 +466,14 @@ const CrosswordGrid = ({ width, height }: CrosswordGridProps) => {
   return (
     <div className="crossword-container">
       <div className="grid">
+        <input
+          ref={hiddenInputRef}
+          className="hidden-input"
+          onBlur={() => hiddenInputRef.current?.focus()}
+          onKeyDown={handleKeyInput}
+          value=""
+          autoFocus
+        />
         {cells.map((rowArray, rowIndex) => (
           <div key={rowIndex} className="grid-row">
             {rowArray.map((cell, colIndex) => (
@@ -473,7 +482,7 @@ const CrosswordGrid = ({ width, height }: CrosswordGridProps) => {
                 key={colIndex}
                 className={getClassName(cell, rowIndex, colIndex)}
                 onClick={(event) => handleCellClick(event, rowIndex, colIndex)}
-                onKeyDown={handleKeyInput}
+                // onKeyDown={handleKeyInput}
               >
                 {cell.number !== null && <div className="cell-number">{cell.number}</div>}
                 {cell.letter !== null && <div className="cell-letter">{cell.letter}</div>}

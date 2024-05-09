@@ -133,3 +133,12 @@
     width: 100%; /* Each clues section takes the full width when shown */
   }
 }
+
+.hidden-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  width: 0;
+  left: -9999px; /* Place it out of the viewport */
+}
