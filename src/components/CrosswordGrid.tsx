@@ -296,6 +296,19 @@ const CrosswordGrid = ({ width, height }: CrosswordGridProps) => {
   return classes.join(' ');
 };
 
+  const getActiveClue = () => {
+    const { row, col, direction } = cursor || {};
+    const { start } = findWordBoundaries(cells, row, col, direction);
+    if (direction === Direction.Across) {
+      const activeClueNumber = cells[row][start]?.number;
+      return clues.across.find(clue => clue[0] === activeClueNumber);
+    } else {
+      const activeClueNumber = cells[start][col]?.number;
+      return clues.down.find(clue => clue[0] === activeClueNumber);
+    }
+
+  }
+
   const updateNumbering = useCallback(() => {
     setCells(updateCellsNumbering);
   }, []);
@@ -462,34 +475,44 @@ const CrosswordGrid = ({ width, height }: CrosswordGridProps) => {
     }
   }, [cells, cursor, incrementCursor]);
 
-  console.log(encodeCrosswordData(cells, clues1));
+  const activeClue = getActiveClue();
+
   return (
     <div className="crossword-container">
-      <div className="grid">
-        <input
-          ref={hiddenInputRef}
-          className="hidden-input"
-          onBlur={() => hiddenInputRef.current?.focus()}
-          onKeyDown={handleKeyInput}
-          value=""
-          autoFocus
-        />
-        {cells.map((rowArray, rowIndex) => (
-          <div key={rowIndex} className="grid-row">
-            {rowArray.map((cell, colIndex) => (
-              <div
-                tabIndex={-1}
-                key={colIndex}
-                className={getClassName(cell, rowIndex, colIndex)}
-                onClick={(event) => handleCellClick(event, rowIndex, colIndex)}
-                // onKeyDown={handleKeyInput}
-              >
-                {cell.number !== null && <div className="cell-number">{cell.number}</div>}
-                {cell.letter !== null && <div className="cell-letter">{cell.letter}</div>}
-              </div>
-            ))}
-          </div>
-        ))}
+      <div className="grid-container">
+        <div className="active-clue-bar">
+          {activeClue &&
+            <>
+                <span className="clue-number">{activeClue[0]}</span>
+                <span className="clue-text">{activeClue[1]}</span>
+            </>
+          }
+        </div>
+        <div className="grid">
+          <input
+            ref={hiddenInputRef}
+            className="hidden-input"
+            onBlur={() => hiddenInputRef.current?.focus()}
+            onKeyDown={handleKeyInput}
+            value=""
+            autoFocus
+          />
+          {cells.map((rowArray, rowIndex) => (
+            <div key={rowIndex} className="grid-row">
+              {rowArray.map((cell, colIndex) => (
+                <div
+                  tabIndex={-1}
+                  key={colIndex}
+                  className={getClassName(cell, rowIndex, colIndex)}
+                  onClick={(event) => handleCellClick(event, rowIndex, colIndex)}
+                >
+                  {cell.number !== null && <div className="cell-number">{cell.number}</div>}
+                  {cell.letter !== null && <div className="cell-letter">{cell.letter}</div>}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="clues-panel">

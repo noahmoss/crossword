@@ -17,6 +17,20 @@
   }
 }
 
+.grid-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.active-clue-bar {
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin: 5px;
+  background-color: lightblue; /* Changes the background when the cell is selected */
+}
+
 .grid {
   flex: 1 0 auto; /* Allows the crossword grid to adjust based on content */
   justify-content: center;
