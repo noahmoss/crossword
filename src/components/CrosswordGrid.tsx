@@ -484,7 +484,7 @@ const CrosswordGrid = ({ width, height }: CrosswordGridProps) => {
       </div>
 
       <div className="clues-panel">
-        <div className="clues-across">
+        <div className={`clues-across ${cursor.direction === Direction.Across ? 'active': ''}`}>
           <span className="clues-header">Across</span>
           <ul>
             {clues.across.map(clue => (
@@ -495,7 +495,7 @@ const CrosswordGrid = ({ width, height }: CrosswordGridProps) => {
             ))}
           </ul>
         </div>
-        <div className="clues-down">
+        <div className={`clues-down ${cursor.direction === Direction.Down ? 'active': ''}`}>
           <span className="clues-header">Down</span>
           <ul>
             {clues.down.map(clue => (

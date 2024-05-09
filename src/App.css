@@ -1,6 +1,10 @@
+body {
+  color: black;
+  background-color: #FFFCF5;
+}
+
 .App {
   text-align: left;
-  background-color: #FFFCF5;
   color: #333333;
   min-height: 100vh;
   display: flex;

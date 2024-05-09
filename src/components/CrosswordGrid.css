@@ -1,11 +1,9 @@
-* {
-  color: black;
-}
 
 .crossword-container {
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  flex-direction: row;
   padding: 20px;
   gap: 20px;
   max-width: 1400px; /* Adjust based on your content width */
@@ -69,10 +67,11 @@
   display: flex;
   justify-content: space-between; /* Ensures the panels are evenly spaced */
   font-family: Arial, sans-serif; /* Ensures a clean, readable font is used */
+  width: 50%;
 }
 
 .clues-across, .clues-down {
-  flex: 0 1 50%; /* Each clue panel will take up 50% of the clues-panel width */
+  flex: 1 1 50%; /* Each clue panel will take up 50% of the clues-panel width */
   /* background-color: white; */
   /* border: 1px solid #ccc; */
   padding: 10px;
@@ -113,4 +112,24 @@
 .clue-text {
   text-align: left; /* Ensures text alignment is left */
   flex-grow: 1; /* Allows the text to take up the rest of the line */
+}
+
+@media (max-width: 767px) {
+  .crossword-container {
+    flex-direction: column; /* Stacks the grid and clues vertically */
+  }
+
+  .clues-panel {
+    width: 100%; /* Allows the clues panel to take full width */
+    flex-direction: column;
+  }
+
+  .clues-across, .clues-down {
+    display: none; /* Initially hides both clue sections */
+  }
+
+  .clues-across.active, .clues-down.active {
+    display: block; /* Shows the active clue section */
+    width: 100%; /* Each clues section takes the full width when shown */
+  }
 }
