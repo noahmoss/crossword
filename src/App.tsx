@@ -6,7 +6,7 @@ import CrosswordGrid from './components/CrosswordGrid';
 function App() {
     return (
         <div className="App">
-            <CrosswordGrid width={5} height={5} />
+            <CrosswordGrid/>
         </div>
     );
 }

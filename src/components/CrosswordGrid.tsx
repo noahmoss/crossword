@@ -1,11 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import './CrosswordGrid.css';
 
-interface CrosswordGridProps {
-  width: number;
-  height: number;
-}
-
 interface Cell {
   filled: boolean;
   number: number | null;
@@ -30,27 +25,14 @@ interface Clues {
 
 interface CrosswordData {
   filledPositions: string;  // Compressed string of filled cell positions
+  width: number | null;
   clues: {
     across: Array<[number, string]>;
     down: Array<[number, string]>;
   };
 }
 
-const clues1: Clues = {
-  across: [
-    [1, 'City on Florida\'s Space Coast'],
-    [5, 'What we\'re doing for dinner.'],
-    [6, 'What we\'re doing for dinner.'],
-    [7, 'What we\'re doing for dinner.'],
-    [8, 'What we\'re doing for dinner.'],
-  ],
-  down: [
-    [1, 'Answer to the first down clue'],
-    [2, 'Answer to the second down clue'],
-    [3, 'Answer to the second down clue'],
-    [4, 'Answer to the second down clue'],
-  ],
-};
+const STARTING_WIDTH = 7;
 
 const encodeCrosswordData = (cells: Cell[][], clues: { across: Array<[number, string]>; down: Array<[number, string]> }): string => {
   // Collecting filled positions
@@ -66,7 +48,8 @@ const encodeCrosswordData = (cells: Cell[][], clues: { across: Array<[number, st
   // Creating the crossword data object
   const data: CrosswordData = {
     filledPositions: filledPositions.join(','),
-    clues: clues
+    clues: clues,
+    width: cells.length,
   };
 
   // Encoding the data object to a Base64 string
@@ -93,15 +76,18 @@ const updateCellsNumbering = (cells: Cell[][]) => {
 }
 
 
-const initialCells = (width: number, height: number): Cell[][] => {
+const initialCells = (): Cell[][] => {
   const queryParams = new URLSearchParams(window.location.search);
   const encodedData = queryParams.get('cw');
   const dataString = encodedData ? decodeURIComponent(atob(encodedData)) : null;
   const crosswordData: CrosswordData = dataString ? JSON.parse(dataString) : null;
   console.log(crosswordData)
 
-  let cells: Cell[][] = Array.from({ length: height }, (_, rowIndex) =>
-    Array.from({ length: width }, (_, colIndex) => ({
+  let width = crosswordData?.width || STARTING_WIDTH;
+  let height = width
+
+  let cells: Cell[][] = Array.from({ length: width }, (_, rowIndex) =>
+    Array.from({ length: height }, (_, colIndex) => ({
       filled: false,
       number: null,
       letter: null,
@@ -251,8 +237,8 @@ const startOfNextWord = (cells: Cell[][], cursor: Cursor, searchDir: 'forwards' 
   return { row: currentRow, col: currentCol, direction };
 };
 
-const CrosswordGrid = ({ width, height }: CrosswordGridProps) => {
-  const [cells, setCells] = useState<Cell[][]>(initialCells(width, height));
+const CrosswordGrid = () => {
+  const [cells, setCells] = useState<Cell[][]>(initialCells());
   const [cursor, setCursor] = useState<Cursor>({row: 0, col: 0, direction: Direction.Across});
   const [clues] = useState<Clues>(initialClues());
   const hiddenInputRef = useRef<HTMLInputElement>(null);
@@ -474,6 +460,8 @@ const CrosswordGrid = ({ width, height }: CrosswordGridProps) => {
         break;
     }
   }, [cells, cursor, incrementCursor]);
+
+  // console.log(encodeCrosswordData(cells, clues1));
 
   const activeClue = getActiveClue();
 
