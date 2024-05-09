@@ -479,11 +479,16 @@ const CrosswordGrid = () => {
         <div className="grid">
           <input
             ref={hiddenInputRef}
+            type="text" // Ensures a basic keyboard
+            autoComplete="off" // Disables autocomplete
+            autoCorrect="off" // Disables autocorrect
+            autoCapitalize="none" // Prevents automatic capitalization
+            spellCheck="false" // Disables spell checking
             className="hidden-input"
-            onBlur={() => hiddenInputRef.current?.focus()}
             onKeyDown={handleKeyInput}
-            value=""
+            onBlur={() => hiddenInputRef.current?.focus()}
             autoFocus
+            value=""
           />
           {cells.map((rowArray, rowIndex) => (
             <div key={rowIndex} className="grid-row">
