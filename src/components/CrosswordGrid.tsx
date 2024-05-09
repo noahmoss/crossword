@@ -81,7 +81,6 @@ const initialCells = (): Cell[][] => {
   const encodedData = queryParams.get('cw');
   const dataString = encodedData ? decodeURIComponent(atob(encodedData)) : null;
   const crosswordData: CrosswordData = dataString ? JSON.parse(dataString) : null;
-  console.log(crosswordData)
 
   let width = crosswordData?.width || STARTING_WIDTH;
   let height = width
@@ -237,9 +236,20 @@ const startOfNextWord = (cells: Cell[][], cursor: Cursor, searchDir: 'forwards' 
   return { row: currentRow, col: currentCol, direction };
 };
 
+const initialCursor = (cells: Cell[][]): Cursor => {
+  for (let row = 0; row < cells.length; row++) {
+    for (let col = 0; col < cells[0].length; col++) {
+      if (!cells[row][col].filled && (col === 0 || cells[row][col - 1].filled)) {
+        return { row, col, direction: Direction.Across };
+      }
+    }
+  }
+  return { row: 0, col: 0, direction: Direction.Across }; // Fallback if no starting position is found
+};
+
 const CrosswordGrid = () => {
   const [cells, setCells] = useState<Cell[][]>(initialCells());
-  const [cursor, setCursor] = useState<Cursor>({row: 0, col: 0, direction: Direction.Across});
+  const [cursor, setCursor] = useState<Cursor>(initialCursor(cells));
   const [clues] = useState<Clues>(initialClues());
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
