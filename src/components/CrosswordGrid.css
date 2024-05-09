@@ -11,6 +11,12 @@
   user-select: none;
 }
 
+@media (max-width : 767px) {
+  .crossword-container {
+    margin-top: 10px;
+  }
+}
+
 .grid {
   flex: 1 0 auto; /* Allows the crossword grid to adjust based on content */
   justify-content: center;
@@ -21,8 +27,8 @@
 }
 
 .grid-cell {
-  width: 80px; /* Size of each cell */
-  height: 80px;
+  width: 60px; /* Size of each cell */
+  height: 60px;
   border: 1px solid black;
   display: flex;
   justify-content: center;
