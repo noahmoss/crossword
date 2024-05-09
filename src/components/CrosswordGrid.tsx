@@ -497,6 +497,7 @@ const CrosswordGrid = () => {
             className="hidden-input"
             onKeyDown={handleKeyInput}
             onBlur={() => hiddenInputRef.current?.focus()}
+            onChange={() => {}}
             autoFocus
             value=""
           />
