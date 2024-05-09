@@ -477,7 +477,7 @@ const CrosswordGrid = () => {
 
   return (
     <div className="crossword-container">
-      <div className="grid-container">
+      <div className="grid-container no-select">
         <div className="active-clue-bar">
           {activeClue &&
             <>
