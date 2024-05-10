@@ -324,6 +324,8 @@ const CrosswordGrid = () => {
         const clickedOnCursor = cursor && cursor.row === row && cursor.col === col;
         const newDirection = clickedOnCursor ? (cursor.direction === Direction.Across ? Direction.Down : Direction.Across) : cursor?.direction || Direction.Across;
         setCursor({row, col, direction: newDirection});
+
+        hiddenInputRef.current?.focus();
       }
     }
   }, [cells, cursor, updateNumbering]);
