@@ -1,14 +1,14 @@
 .no-select {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 .no-select:focus {
-  outline: none !important;
+    outline: none !important;
 }
 
 .crossword-container {
@@ -82,17 +82,16 @@
 
 .cell-number {
   position: absolute;
-  top: 0; /* Ensures the number is aligned to the top of the cell */
-  left: 5px; /* Properly aligns the number from the right, adjust if necessary */
-  font-size: 14px; /* Increased font size for better visibility */
+  top: 0px; /* Ensures the number is aligned to the top of the cell */
+  left: 2px; /* Properly aligns the number from the right, adjust if necessary */
+  font-size: 12px; /* Increased font size for better visibility */
   color: black; /* Keeps the color subtle */
-  padding-top: 2px; /* Provides a slight vertical offset */
 }
 
 .cell-letter {
   position: absolute;
   color: black;
-  font-size: 50px;
+  font-size: 45px;
 }
 
 .clues-panel {

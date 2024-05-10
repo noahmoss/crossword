@@ -49,7 +49,7 @@ const encodeCrosswordData = (cells: Cell[][], clues: { across: Array<[number, st
   const data: CrosswordData = {
     filledPositions: filledPositions.join(','),
     clues: clues,
-    width: cells.length,
+    width: STARTING_WIDTH,
   };
 
   // Encoding the data object to a Base64 string
@@ -471,7 +471,86 @@ const CrosswordGrid = () => {
     }
   }, [cells, cursor, incrementCursor]);
 
-  // console.log(encodeCrosswordData(cells, clues1));
+
+  // const clues1: Clues = {
+  //   across: [
+  //     [1, 'Constricting snake'],
+  //     [4, 'Holy shrine in Mecca'],
+  //     [6, 'Southwest capital'],
+  //     [8, 'Attorney\'s org.'],
+  //     [9, 'Upcharged milk option'],
+  //     [10, 'Phil of TV'],
+  //     [12, 'What you\'re solving, and are (absolutely) about to eat'],
+  //     [13, 'Grass turf']
+  //   ],
+  //   down: [
+  //     [1, 'This shit is ___'],
+  //     [2, 'Upcharged milk option'],
+  //     [3, 'Embarrassed'],
+  //     [4, 'Meat on a stick (alternate spelling)'],
+  //     [5, 'Not a good way to run'],
+  //     [6, 'Feeling down (but not today!)'],
+  //     [7, 'Organ that might be private'],
+  //     [11, 'Many years ___']
+  //   ],
+  // };
+
+  // const clues2: Clues = {
+  //   across: [
+  //     [1, 'Nonsense, to Brits'],
+  //     [5, 'African language group'],
+  //     [6, 'Huge quantity (of)'],
+  //     [7, 'Sure, however...'],
+  //     [8, 'What we have 2pm tickets for!'],
+  //   ],
+  //   down: [
+  //     [1, 'In bad taste'],
+  //     [2, 'End of an era?'],
+  //     [3, 'Dutch oven maker'],
+  //     [4, '___ and peck'],
+  //     [5, 'Benefit']
+  //   ]
+  // }
+
+  // const clues3: Clues = {
+  //   across: [
+  //     [1, 'Tater unit'],
+  //     [4, 'If ___ a Hammer'],
+  //     [6, 'Energize'],
+  //     [8, 'Healthy, in Madrid'],
+  //     [9, 'Pommes frites topping'],
+  //   ],
+  //   down: [
+  //     [1, 'An aunt eating 3-Down'],
+  //     [2, 'Resistance units'],
+  //     [3, 'Our dinner plans!'],
+  //     [5, 'IMAX desert planet'],
+  //     [7, 'D.C. insider']
+  //   ]
+  // }
+  //
+  const clues4: Clues = {
+    across: [
+      [1, 'Auditing org.'],
+      [4, 'Cobbler\'s tool'],
+      [7, 'Snare sound'],
+      [9, 'In public'],
+      [10, 'More likely to enjoy crosswords'],
+      [11, 'Ogles'],
+      [12, 'Number of years since we were last here'],
+    ],
+    down: [
+      [1, 'Do a pressing chore?'],
+      [2, 'String Quartet in F composer'],
+      [3, '-phonic prefix'],
+      [4, 'A flannel and jeans, perhaps'],
+      [5, 'Cardiff\'s country'],
+      [6, 'About 5.88 trillion mi.'],
+      [8, 'Parade director Michael'],
+    ]
+  }
+
+  console.log(encodeCrosswordData(cells, clues4));
 
   const activeClue = getActiveClue();
 
