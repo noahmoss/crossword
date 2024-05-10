@@ -478,10 +478,10 @@ const CrosswordGrid = () => {
       <div className="grid-container no-select">
         <div className="active-clue-bar">
           {activeClue &&
-            <>
-                <span className="clue-number">{activeClue[0]}</span>
-                <span className="clue-text">{activeClue[1]}</span>
-            </>
+          <>
+            <span className="clue-number">{activeClue[0]}</span>
+            <span className="clue-text">{activeClue[1]}</span>
+          </>
           }
         </div>
         <div className="grid">
