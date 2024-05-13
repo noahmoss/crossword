@@ -38,7 +38,7 @@ const encodeCrosswordData = (cells: Cell[][], clues: { across: Array<[number, st
   // Collecting filled positions
   const filledPositions = cells.flatMap((
     row, rowIndex) => row.map((cell, colIndex) => cell.filled ? `${rowIndex}:${colIndex}` : null)
-                                       ).filter((position => position !== null));
+                                     ).filter((position => position !== null));
 
   // Creating the crossword data object
   const data: CrosswordData = {

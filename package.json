@@ -23,7 +23,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "prepare": "husky"
   },
   "eslintConfig": {
     "extends": [
@@ -45,7 +46,20 @@
   },
   "homepage": "https://noahmoss.github.io/crossword",
   "devDependencies": {
+    "@eslint/js": "^9.2.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1",
     "gh-pages": "^6.1.1",
-    "react-scripts": "5.0.1"
+    "globals": "^15.2.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "react-scripts": "5.0.1",
+    "typescript-eslint": "^7.8.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "prettier --write"
+    ]
   }
 }
