@@ -59,6 +59,8 @@ const encodeCrosswordData = (
     return encodedData
 }
 
+console.log(encodeCrosswordData)
+
 const isStartOfWord = (cells: Cell[][], rowIndex: number, colIndex: number) => {
     return (
         !cells[rowIndex][colIndex].filled &&
@@ -91,11 +93,11 @@ const initialCells = (): Cell[][] => {
         ? JSON.parse(dataString)
         : null
 
-    let width = crosswordData?.width || STARTING_WIDTH
-    let height = width
+    const width = crosswordData?.width || STARTING_WIDTH
+    const height = width
 
-    let cells: Cell[][] = Array.from({ length: width }, (_, rowIndex) =>
-        Array.from({ length: height }, (_, colIndex) => ({
+    const cells: Cell[][] = Array.from({ length: width }, () =>
+        Array.from({ length: height }, () => ({
             filled: false,
             number: null,
             letter: null,
@@ -699,28 +701,26 @@ const CrosswordGrid = () => {
     //   ]
     // }
     //
-    const clues4: Clues = {
-        across: [
-            [1, 'Auditing org.'],
-            [4, "Cobbler's tool"],
-            [7, 'Snare sound'],
-            [9, 'In public'],
-            [10, 'More likely to enjoy crosswords'],
-            [11, 'Ogles'],
-            [12, 'Number of years since we were last here'],
-        ],
-        down: [
-            [1, 'Do a pressing chore?'],
-            [2, 'String Quartet in F composer'],
-            [3, '-phonic prefix'],
-            [4, 'A flannel and jeans, perhaps'],
-            [5, "Cardiff's country"],
-            [6, 'About 5.88 trillion mi.'],
-            [8, 'Parade director Michael'],
-        ],
-    }
-
-    console.log(encodeCrosswordData(cells, clues4))
+    // const clues4: Clues = {
+    //     across: [
+    //         [1, 'Auditing org.'],
+    //         [4, "Cobbler's tool"],
+    //         [7, 'Snare sound'],
+    //         [9, 'In public'],
+    //         [10, 'More likely to enjoy crosswords'],
+    //         [11, 'Ogles'],
+    //         [12, 'Number of years since we were last here'],
+    //     ],
+    //     down: [
+    //         [1, 'Do a pressing chore?'],
+    //         [2, 'String Quartet in F composer'],
+    //         [3, '-phonic prefix'],
+    //         [4, 'A flannel and jeans, perhaps'],
+    //         [5, "Cardiff's country"],
+    //         [6, 'About 5.88 trillion mi.'],
+    //         [8, 'Parade director Michael'],
+    //     ],
+    // }
 
     const activeClue = getActiveClue()
 
