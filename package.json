@@ -45,6 +45,7 @@
   },
   "homepage": "https://noahmoss.github.io/crossword",
   "devDependencies": {
-    "gh-pages": "^6.1.1"
+    "gh-pages": "^6.1.1",
+    "react-scripts": "5.0.1"
   }
 }
