@@ -24,7 +24,7 @@ interface Clues {
 }
 
 interface CrosswordData {
-  filledPositions: string;  // Compressed string of filled cell positions
+  filledPositions: string;
   width: number | null;
   clues: {
     across: Array<[number, string]>;
@@ -36,14 +36,9 @@ const STARTING_WIDTH = 7;
 
 const encodeCrosswordData = (cells: Cell[][], clues: { across: Array<[number, string]>; down: Array<[number, string]> }): string => {
   // Collecting filled positions
-  let filledPositions = [];
-  for (let row = 0; row < cells.length; row++) {
-    for (let col = 0; col < cells[row].length; col++) {
-      if (cells[row][col].filled) {
-        filledPositions.push(`${row}:${col}`);
-      }
-    }
-  }
+  const filledPositions = cells.flatMap((
+    row, rowIndex) => row.map((cell, colIndex) => cell.filled ? `${rowIndex}:${colIndex}` : null)
+                                       ).filter((position => position !== null));
 
   // Creating the crossword data object
   const data: CrosswordData = {
