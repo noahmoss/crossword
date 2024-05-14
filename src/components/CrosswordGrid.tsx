@@ -7,10 +7,7 @@ interface Cell {
     letter: string | null
 }
 
-enum Direction {
-    Across,
-    Down,
-}
+type Direction = 'across' | 'down'
 
 interface Cursor {
     row: number
@@ -35,8 +32,11 @@ interface CrosswordData {
 const STARTING_WIDTH = 7
 
 const encodeCrosswordData = (
-    cells: Cell[][],
-    clues: { across: Array<[number, string]>; down: Array<[number, string]> }
+    cells: readonly Cell[][],
+    clues: {
+        readonly across: Array<[number, string]>
+        readonly down: Array<[number, string]>
+    }
 ): string => {
     // Collecting filled positions
     const filledPositions = cells
@@ -61,7 +61,11 @@ const encodeCrosswordData = (
 
 console.log(encodeCrosswordData)
 
-const isStartOfWord = (cells: Cell[][], rowIndex: number, colIndex: number) => {
+const isStartOfWord = (
+    cells: readonly Cell[][],
+    rowIndex: number,
+    colIndex: number
+) => {
     return (
         !cells[rowIndex][colIndex].filled &&
         (colIndex === 0 ||
@@ -71,7 +75,7 @@ const isStartOfWord = (cells: Cell[][], rowIndex: number, colIndex: number) => {
     )
 }
 
-const updateCellsNumbering = (cells: Cell[][]) => {
+const updateCellsNumbering = (cells: readonly Cell[][]) => {
     let num = 1
     return cells.map((rowArray, rowIndex) =>
         rowArray.map((cell, colIndex) => {
@@ -147,17 +151,15 @@ const findWordBoundaries = (
     col: number,
     direction: Direction
 ) => {
-    let start = direction === Direction.Across ? col : row
+    let start = direction === 'across' ? col : row
     let end = start
     const maxIndex =
-        (direction === Direction.Across ? cells[row].length : cells.length) - 1
+        (direction === 'across' ? cells[row].length : cells.length) - 1
 
     // Search backwards to find the start of the word
     while (start >= 0) {
         const checkCell =
-            direction === Direction.Across
-                ? cells[row][start]
-                : cells[start][col]
+            direction === 'across' ? cells[row][start] : cells[start][col]
         if (checkCell.filled) {
             start++
             break
@@ -171,7 +173,7 @@ const findWordBoundaries = (
     // Search forwards to find the end of the word
     while (end <= maxIndex) {
         const checkCell =
-            direction === Direction.Across ? cells[row][end] : cells[end][col]
+            direction === 'across' ? cells[row][end] : cells[end][col]
         if (checkCell.filled) {
             end--
             break
@@ -213,7 +215,7 @@ const startOfNextWord = (
 
     // Move to the next cell in the grid, respecting wrapping
     const moveNext = () => {
-        if (direction === Direction.Across) {
+        if (direction === 'across') {
             advanceCol()
             if (currentCol >= width) {
                 currentCol = 0
@@ -229,7 +231,7 @@ const startOfNextWord = (
                 }
             }
         } else {
-            // Direction.Down
+            // "down"
             advanceRow()
             if (currentRow >= height) {
                 currentRow = 0
@@ -254,8 +256,8 @@ const startOfNextWord = (
     while (!isFilled(currentRow, currentCol)) {
         moveNext()
         // Check if we have reached the end of a line or column
-        if (direction === Direction.Across && currentCol === 0) break
-        if (direction === Direction.Down && currentRow === 0) break
+        if (direction === 'across' && currentCol === 0) break
+        if (direction === 'down' && currentRow === 0) break
     }
 
     // Continue to the next unfilled cell, which is the start of the next word
@@ -263,13 +265,13 @@ const startOfNextWord = (
         moveNext()
         // If we reach the beginning of a line or column, stop if it's empty
         if (
-            direction === Direction.Across &&
+            direction === 'across' &&
             currentCol === 0 &&
             !isFilled(currentRow, currentCol)
         )
             break
         if (
-            direction === Direction.Down &&
+            direction === 'down' &&
             currentRow === 0 &&
             !isFilled(currentRow, currentCol)
         )
@@ -286,11 +288,11 @@ const initialCursor = (cells: Cell[][]): Cursor => {
                 !cells[row][col].filled &&
                 (col === 0 || cells[row][col - 1].filled)
             ) {
-                return { row, col, direction: Direction.Across }
+                return { row, col, direction: 'across' }
             }
         }
     }
-    return { row: 0, col: 0, direction: Direction.Across } // Fallback if no starting position is found
+    return { row: 0, col: 0, direction: 'across' } // Fallback if no starting position is found
 }
 
 const CrosswordGrid = () => {
@@ -320,7 +322,7 @@ const CrosswordGrid = () => {
             )
 
             if (
-                cursor.direction === Direction.Across &&
+                cursor.direction === 'across' &&
                 cursor.row === rowIndex &&
                 colIndex >= start &&
                 colIndex <= end
@@ -328,7 +330,7 @@ const CrosswordGrid = () => {
                 classes.push('cursor-across')
             }
             if (
-                cursor.direction === Direction.Down &&
+                cursor.direction === 'down' &&
                 cursor.col === colIndex &&
                 rowIndex >= start &&
                 rowIndex <= end
@@ -357,10 +359,10 @@ const CrosswordGrid = () => {
 
             // Check if the cursor's current word matches the clue number
             if (
-                (direction === Direction.Across &&
+                (direction === 'across' &&
                     cursor.row === row &&
                     clue[0] === cells[row][start]?.number) ||
-                (direction === Direction.Down &&
+                (direction === 'down' &&
                     cursor.col === col &&
                     clue[0] === cells[start][col]?.number)
             ) {
@@ -374,7 +376,7 @@ const CrosswordGrid = () => {
     const getActiveClue = () => {
         const { row, col, direction } = cursor || {}
         const { start } = findWordBoundaries(cells, row, col, direction)
-        if (direction === Direction.Across) {
+        if (direction === 'across') {
             const activeClueNumber = cells[row][start]?.number
             return clues.across.find((clue) => clue[0] === activeClueNumber)
         } else {
@@ -405,10 +407,10 @@ const CrosswordGrid = () => {
                     const clickedOnCursor =
                         cursor && cursor.row === row && cursor.col === col
                     const newDirection = clickedOnCursor
-                        ? cursor.direction === Direction.Across
-                            ? Direction.Down
-                            : Direction.Across
-                        : cursor?.direction || Direction.Across
+                        ? cursor.direction === 'across'
+                            ? 'down'
+                            : 'across'
+                        : cursor?.direction || 'across'
                     setCursor({ row, col, direction: newDirection })
 
                     hiddenInputRef.current?.focus()
@@ -426,20 +428,14 @@ const CrosswordGrid = () => {
                 prevCursor.col,
                 prevCursor.direction
             )
-            if (
-                prevCursor.direction === Direction.Across &&
-                prevCursor.col < end
-            ) {
+            if (prevCursor.direction === 'across' && prevCursor.col < end) {
                 return {
                     row: prevCursor.row,
                     col: prevCursor.col + 1,
                     direction: prevCursor.direction,
                 }
             }
-            if (
-                prevCursor.direction === Direction.Down &&
-                prevCursor.row < end
-            ) {
+            if (prevCursor.direction === 'down' && prevCursor.row < end) {
                 return {
                     row: prevCursor.row + 1,
                     col: prevCursor.col,
@@ -483,9 +479,9 @@ const CrosswordGrid = () => {
                         return {
                             ...prevCursor,
                             direction:
-                                prevCursor.direction === Direction.Across
-                                    ? Direction.Down
-                                    : Direction.Across,
+                                prevCursor.direction === 'across'
+                                    ? 'down'
+                                    : 'across',
                         }
                     }
                     return prevCursor
@@ -513,9 +509,9 @@ const CrosswordGrid = () => {
                             cursor.direction
                         )
                         if (
-                            (cursor.direction === Direction.Across &&
+                            (cursor.direction === 'across' &&
                                 cursor.col === start) ||
-                            (cursor.direction === Direction.Down &&
+                            (cursor.direction === 'down' &&
                                 cursor.row === start)
                         ) {
                             // If at the start, move to the last letter of the previous word
@@ -540,7 +536,7 @@ const CrosswordGrid = () => {
                                     const newCells = prevCells.map((row) =>
                                         row.map((cell) => ({ ...cell }))
                                     )
-                                    if (cursor.direction === Direction.Across) {
+                                    if (cursor.direction === 'across') {
                                         newCells[prevCursor.row][
                                             prevEnd
                                         ].letter = null
@@ -556,7 +552,7 @@ const CrosswordGrid = () => {
                             // Move back within the current word
                             setCursor((prevCursor) => {
                                 if (prevCursor) {
-                                    if (cursor.direction === Direction.Across) {
+                                    if (cursor.direction === 'across') {
                                         return {
                                             ...prevCursor,
                                             col: prevCursor.col - 1,
@@ -574,7 +570,7 @@ const CrosswordGrid = () => {
                                 const newCells = prevCells.map((row) =>
                                     row.map((cell) => ({ ...cell }))
                                 )
-                                if (cursor.direction === Direction.Across) {
+                                if (cursor.direction === 'across') {
                                     newCells[cursor.row][
                                         cursor.col - 1
                                     ].letter = null
@@ -594,47 +590,47 @@ const CrosswordGrid = () => {
 
             switch (event.code) {
                 case 'ArrowUp':
-                    if (direction === Direction.Down) {
+                    if (direction === 'down') {
                         setCursor({ ...cursor, row: row - 1 })
                     } else if (
-                        direction === Direction.Across &&
+                        direction === 'across' &&
                         row > 0 &&
                         !cells[row - 1][col].filled
                     ) {
-                        setCursor({ ...cursor, direction: Direction.Down })
+                        setCursor({ ...cursor, direction: 'down' })
                     }
                     break
                 case 'ArrowDown':
-                    if (direction === Direction.Down) {
+                    if (direction === 'down') {
                         setCursor({ ...cursor, row: row + 1 })
                     } else if (
-                        direction === Direction.Across &&
+                        direction === 'across' &&
                         row < cells.length - 1 &&
                         !cells[row + 1][col].filled
                     ) {
-                        setCursor({ ...cursor, direction: Direction.Down })
+                        setCursor({ ...cursor, direction: 'down' })
                     }
                     break
                 case 'ArrowLeft':
-                    if (direction === Direction.Across) {
+                    if (direction === 'across') {
                         setCursor({ ...cursor, col: col - 1 })
                     } else if (
-                        direction === Direction.Down &&
+                        direction === 'down' &&
                         col > 0 &&
                         !cells[row][col - 1].filled
                     ) {
-                        setCursor({ ...cursor, direction: Direction.Across })
+                        setCursor({ ...cursor, direction: 'across' })
                     }
                     break
                 case 'ArrowRight':
-                    if (direction === Direction.Across) {
+                    if (direction === 'across') {
                         setCursor({ ...cursor, col: col + 1 })
                     } else if (
-                        direction === Direction.Down &&
+                        direction === 'down' &&
                         col < cells[0].length - 1 &&
                         !cells[row][col + 1].filled
                     ) {
-                        setCursor({ ...cursor, direction: Direction.Across })
+                        setCursor({ ...cursor, direction: 'across' })
                     }
                     break
                 default:
@@ -788,16 +784,13 @@ const CrosswordGrid = () => {
 
             <div className="clues-panel">
                 <div
-                    className={`clues-across ${cursor.direction === Direction.Across ? 'active' : ''}`}
+                    className={`clues-across ${cursor.direction === 'across' ? 'active' : ''}`}
                 >
                     <span className="clues-header">Across</span>
                     <ul>
                         {clues.across.map((clue) => (
                             <li
-                                className={getClueClassName(
-                                    clue,
-                                    Direction.Across
-                                )}
+                                className={getClueClassName(clue, 'across')}
                                 key={`across-${clue[0]}`}
                             >
                                 <span className="clue-number">{clue[0]}</span>
@@ -807,16 +800,13 @@ const CrosswordGrid = () => {
                     </ul>
                 </div>
                 <div
-                    className={`clues-down ${cursor.direction === Direction.Down ? 'active' : ''}`}
+                    className={`clues-down ${cursor.direction === 'down' ? 'active' : ''}`}
                 >
                     <span className="clues-header">Down</span>
                     <ul>
                         {clues.down.map((clue) => (
                             <li
-                                className={getClueClassName(
-                                    clue,
-                                    Direction.Down
-                                )}
+                                className={getClueClassName(clue, 'down')}
                                 key={`across-${clue[0]}`}
                             >
                                 <span className="clue-number">{clue[0]}</span>
