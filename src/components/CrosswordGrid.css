@@ -45,12 +45,9 @@
 }
 
 .grid {
-  flex: 1 0 auto; /* Allows the crossword grid to adjust based on content */
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   justify-content: center;
-}
-
-.grid-row {
-  display: flex;
 }
 
 .grid-cell {

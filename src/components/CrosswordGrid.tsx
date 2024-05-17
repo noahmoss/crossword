@@ -29,7 +29,7 @@ interface CrosswordData {
     }
 }
 
-const STARTING_WIDTH = 7
+const STARTING_WIDTH = 5
 
 const encodeCrosswordData = (
     cells: readonly Cell[][],
@@ -731,54 +731,48 @@ const CrosswordGrid = () => {
                         </>
                     )}
                 </div>
+                <input
+                    ref={hiddenInputRef}
+                    type="text" // Ensures a basic keyboard
+                    autoComplete="off" // Disables autocomplete
+                    autoCorrect="off" // Disables autocorrect
+                    autoCapitalize="none" // Prevents automatic capitalization
+                    spellCheck="false" // Disables spell checking
+                    className="hidden-input"
+                    onKeyDown={handleKeyInput}
+                    onBlur={() => hiddenInputRef.current?.focus()}
+                    onChange={() => {}}
+                    autoFocus
+                    value=""
+                />
                 <div className="grid">
-                    <input
-                        ref={hiddenInputRef}
-                        type="text" // Ensures a basic keyboard
-                        autoComplete="off" // Disables autocomplete
-                        autoCorrect="off" // Disables autocorrect
-                        autoCapitalize="none" // Prevents automatic capitalization
-                        spellCheck="false" // Disables spell checking
-                        className="hidden-input"
-                        onKeyDown={handleKeyInput}
-                        onBlur={() => hiddenInputRef.current?.focus()}
-                        onChange={() => {}}
-                        autoFocus
-                        value=""
-                    />
-                    {cells.map((rowArray, rowIndex) => (
-                        <div key={rowIndex} className="grid-row">
-                            {rowArray.map((cell, colIndex) => (
-                                <div
-                                    tabIndex={-1}
-                                    key={colIndex}
-                                    className={getClassName(
-                                        cell,
-                                        rowIndex,
-                                        colIndex
-                                    )}
-                                    onClick={(event) =>
-                                        handleCellClick(
-                                            event,
-                                            rowIndex,
-                                            colIndex
-                                        )
-                                    }
-                                >
-                                    {cell.number !== null && (
-                                        <div className="cell-number">
-                                            {cell.number}
-                                        </div>
-                                    )}
-                                    {cell.letter !== null && (
-                                        <div className="cell-letter">
-                                            {cell.letter}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    ))}
+                    {cells.map((rowArray, rowIndex) =>
+                        rowArray.map((cell, colIndex) => (
+                            <div
+                                tabIndex={-1}
+                                key={colIndex}
+                                className={getClassName(
+                                    cell,
+                                    rowIndex,
+                                    colIndex
+                                )}
+                                onClick={(event) =>
+                                    handleCellClick(event, rowIndex, colIndex)
+                                }
+                            >
+                                {cell.number !== null && (
+                                    <div className="cell-number">
+                                        {cell.number}
+                                    </div>
+                                )}
+                                {cell.letter !== null && (
+                                    <div className="cell-letter">
+                                        {cell.letter}
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 
