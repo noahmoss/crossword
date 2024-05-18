@@ -46,13 +46,13 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(var(--cols), 1fr);
   justify-content: center;
 }
 
 .grid-cell {
-  width: 60px; /* Size of each cell */
-  height: 60px;
+  min-width: 60px; /* Size of each cell */
+  min-height: 60px;
   border: 1px solid black;
   display: flex;
   justify-content: center;
@@ -91,6 +91,30 @@
   font-size: 45px;
 }
 
+.size-selector {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.size-selector > input {
+  font-size: 1.3em;
+  text-align: center;
+  width: 2em;
+  border: 1px solid black;
+  margin: 5px;
+  border-radius: 5px;
+  background-color: white;
+  -moz-appearance: textfield; /* Hide arrows on Firefox */
+}
+
+/* Hide arrows on Chrome/Safari */
+.size-selector > input::-webkit-inner-spin-button,
+.size-selector > input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .clues-panel {
   display: flex;
   justify-content: space-between; /* Ensures the panels are evenly spaced */
@@ -100,8 +124,6 @@
 
 .clues-across, .clues-down {
   flex: 1 1 50%; /* Each clue panel will take up 50% of the clues-panel width */
-  /* background-color: white; */
-  /* border: 1px solid #ccc; */
   padding: 10px;
   overflow-y: auto;
   height: 300px;

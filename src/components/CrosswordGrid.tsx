@@ -7,6 +7,8 @@ interface Cell {
     letter: string | null
 }
 
+type Grid = Cell[][]
+
 type Direction = 'across' | 'down'
 
 interface Cursor {
@@ -23,13 +25,15 @@ interface Clues {
 interface CrosswordData {
     filledPositions: string
     width: number | null
+    height: number | null
     clues: {
         across: Array<[number, string]>
         down: Array<[number, string]>
     }
 }
 
-const STARTING_WIDTH = 5
+const STARTING_WIDTH = 7
+const STARTING_HEIGHT = 7
 
 const encodeCrosswordData = (
     cells: readonly Cell[][],
@@ -52,6 +56,7 @@ const encodeCrosswordData = (
         filledPositions: filledPositions.join(','),
         clues: clues,
         width: STARTING_WIDTH,
+        height: STARTING_HEIGHT,
     }
 
     // Encoding the data object to a Base64 string
@@ -87,6 +92,14 @@ const updateCellsNumbering = (cells: readonly Cell[][]) => {
     )
 }
 
+const newCell = (): Cell => {
+    return {
+        filled: false,
+        number: null,
+        letter: null,
+    }
+}
+
 const initialCells = (): Cell[][] => {
     const queryParams = new URLSearchParams(window.location.search)
     const encodedData = queryParams.get('cw')
@@ -98,10 +111,10 @@ const initialCells = (): Cell[][] => {
         : null
 
     const width = crosswordData?.width || STARTING_WIDTH
-    const height = width
+    const height = crosswordData?.height || STARTING_HEIGHT
 
-    const cells: Cell[][] = Array.from({ length: width }, () =>
-        Array.from({ length: height }, () => ({
+    const cells: Cell[][] = Array.from({ length: height }, () =>
+        Array.from({ length: width }, () => ({
             filled: false,
             number: null,
             letter: null,
@@ -119,6 +132,36 @@ const initialCells = (): Cell[][] => {
     }
 
     return updateCellsNumbering(cells)
+}
+
+// Adds or removes rows to `cells` as necessary based on the specified `newWidth` and `newHeight`
+const changeGridSize = (
+    cells: Grid,
+    newWidth: number,
+    newHeight: number
+): Grid => {
+    const currentHeight = cells.length
+    const currentWidth = currentHeight > 0 ? cells[0].length : 0
+
+    // Adjust rows immutably
+    const newRows =
+        newHeight > currentHeight
+            ? [
+                  ...cells,
+                  ...Array.from({ length: newHeight - currentHeight }, () =>
+                      new Array(newWidth).fill(newCell())
+                  ),
+              ]
+            : cells.slice(0, newHeight)
+
+    // Adjust columns immutably
+    const newGrid = newRows.map((row) =>
+        newWidth > currentWidth
+            ? [...row, ...new Array(newWidth - currentWidth).fill(newCell())]
+            : row.slice(0, newWidth)
+    )
+
+    return newGrid
 }
 
 const initialClues = (): {
@@ -640,6 +683,24 @@ const CrosswordGrid = () => {
         [cells, cursor, incrementCursor]
     )
 
+    const handleWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        event.preventDefault()
+        const newWidth = Number(event.target.value)
+        if (newWidth >= 1 && newWidth <= 21) {
+            setCells(changeGridSize(cells, newWidth, cells.length))
+        }
+        updateNumbering()
+    }
+
+    const handleHeightChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        event.preventDefault()
+        const newHeight = Number(event.target.value)
+        if (newHeight >= 1 && newHeight <= 21) {
+            setCells(changeGridSize(cells, cells[0].length, newHeight))
+        }
+        updateNumbering()
+    }
+
     // const clues1: Clues = {
     //   across: [
     //     [1, 'Constricting snake'],
@@ -731,13 +792,15 @@ const CrosswordGrid = () => {
                         </>
                     )}
                 </div>
+
+                {/* Use a hidden input that always auto-focuses to keep the keyboard visible on mobile */}
                 <input
                     ref={hiddenInputRef}
-                    type="text" // Ensures a basic keyboard
-                    autoComplete="off" // Disables autocomplete
-                    autoCorrect="off" // Disables autocorrect
-                    autoCapitalize="none" // Prevents automatic capitalization
-                    spellCheck="false" // Disables spell checking
+                    type="text"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck="false"
                     className="hidden-input"
                     onKeyDown={handleKeyInput}
                     onBlur={() => hiddenInputRef.current?.focus()}
@@ -745,7 +808,11 @@ const CrosswordGrid = () => {
                     autoFocus
                     value=""
                 />
-                <div className="grid">
+
+                <div
+                    className="grid"
+                    style={{ '--cols': cells[0].length } as React.CSSProperties}
+                >
                     {cells.map((rowArray, rowIndex) =>
                         rowArray.map((cell, colIndex) => (
                             <div
@@ -773,6 +840,21 @@ const CrosswordGrid = () => {
                             </div>
                         ))
                     )}
+                </div>
+
+                <div className="size-selector">
+                    <input
+                        type="number"
+                        value={cells.length}
+                        onInput={handleHeightChange}
+                    />
+                    rows &#x2715; {/* X character */}
+                    <input
+                        type="number"
+                        value={cells[0].length}
+                        onInput={handleWidthChange}
+                    />
+                    columns
                 </div>
             </div>
 
