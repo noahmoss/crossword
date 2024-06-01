@@ -1,36 +1,14 @@
 import React, { useState, useCallback, useRef } from 'react'
 import './CrosswordGrid.css'
-
-interface Cell {
-    filled: boolean
-    number: number | null
-    letter: string | null
-}
-
-type Grid = Cell[][]
-
-type Direction = 'across' | 'down'
-
-interface Cursor {
-    row: number
-    col: number
-    direction: Direction
-}
-
-interface Clues {
-    across: [number, string][]
-    down: [number, string][]
-}
-
-interface CrosswordData {
-    filledPositions: string
-    width: number | null
-    height: number | null
-    clues: {
-        across: Array<[number, string]>
-        down: Array<[number, string]>
-    }
-}
+import {
+    Cell,
+    CrosswordData,
+    Cursor,
+    Clues,
+    Direction,
+    Grid,
+} from '../types/types'
+import { findWordBoundaries, isStartOfWord } from '../util/grid'
 
 const STARTING_WIDTH = 7
 const STARTING_HEIGHT = 7
@@ -65,20 +43,6 @@ const encodeCrosswordData = (
 }
 
 console.log(encodeCrosswordData)
-
-const isStartOfWord = (
-    cells: readonly Cell[][],
-    rowIndex: number,
-    colIndex: number
-) => {
-    return (
-        !cells[rowIndex][colIndex].filled &&
-        (colIndex === 0 ||
-            cells[rowIndex][colIndex - 1].filled ||
-            rowIndex === 0 ||
-            cells[rowIndex - 1][colIndex].filled)
-    )
-}
 
 const updateCellsNumbering = (cells: readonly Cell[][]) => {
     let num = 1
@@ -186,48 +150,6 @@ const initialClues = (): {
         across: [],
         down: [],
     }
-}
-
-const findWordBoundaries = (
-    cells: Cell[][],
-    row: number,
-    col: number,
-    direction: Direction
-) => {
-    let start = direction === 'across' ? col : row
-    let end = start
-    const maxIndex =
-        (direction === 'across' ? cells[row].length : cells.length) - 1
-
-    // Search backwards to find the start of the word
-    while (start >= 0) {
-        const checkCell =
-            direction === 'across' ? cells[row][start] : cells[start][col]
-        if (checkCell.filled) {
-            start++
-            break
-        }
-        if (start === 0) {
-            break
-        }
-        start--
-    }
-
-    // Search forwards to find the end of the word
-    while (end <= maxIndex) {
-        const checkCell =
-            direction === 'across' ? cells[row][end] : cells[end][col]
-        if (checkCell.filled) {
-            end--
-            break
-        }
-        if (end === maxIndex) {
-            break
-        }
-        end++
-    }
-
-    return { start, end }
 }
 
 // Given a cursor, returns the row and column of the start of the next word. Wraps around to the beginning of the grid if necessary.
@@ -344,7 +266,13 @@ const CrosswordGrid = () => {
     const [clues] = useState<Clues>(initialClues())
     const hiddenInputRef = useRef<HTMLInputElement>(null)
 
-    const getClassName = (cell: Cell, rowIndex: number, colIndex: number) => {
+    const getClassName = (
+        cell: Cell,
+        rowIndex: number,
+        colIndex: number,
+        wordStart: number,
+        wordEnd: number
+    ) => {
         const classes = ['grid-cell']
         if (cell.filled) classes.push('filled')
 
@@ -357,26 +285,19 @@ const CrosswordGrid = () => {
             (cursor.row === rowIndex || cursor.col === colIndex) &&
             !cell.filled
         ) {
-            const { start, end } = findWordBoundaries(
-                cells,
-                cursor.row,
-                cursor.col,
-                cursor.direction
-            )
-
             if (
                 cursor.direction === 'across' &&
                 cursor.row === rowIndex &&
-                colIndex >= start &&
-                colIndex <= end
+                colIndex >= wordStart &&
+                colIndex <= wordEnd
             ) {
                 classes.push('cursor-across')
             }
             if (
                 cursor.direction === 'down' &&
                 cursor.col === colIndex &&
-                rowIndex >= start &&
-                rowIndex <= end
+                rowIndex >= wordStart &&
+                rowIndex <= wordEnd
             ) {
                 classes.push('cursor-down')
             }
@@ -387,27 +308,21 @@ const CrosswordGrid = () => {
 
     const getClueClassName = (
         clue: (string | number)[],
-        direction: Direction
+        direction: Direction,
+        wordStart: number
     ) => {
         const { row, col } = cursor || {}
         const classes = ['clue-item']
 
         if (direction === cursor.direction) {
-            const { start } = findWordBoundaries(
-                cells,
-                row,
-                col,
-                cursor.direction
-            )
-
             // Check if the cursor's current word matches the clue number
             if (
                 (direction === 'across' &&
                     cursor.row === row &&
-                    clue[0] === cells[row][start]?.number) ||
+                    clue[0] === cells[row][wordStart]?.number) ||
                 (direction === 'down' &&
                     cursor.col === col &&
-                    clue[0] === cells[start][col]?.number)
+                    clue[0] === cells[wordStart][col]?.number)
             ) {
                 classes.push('active-clue')
             }
@@ -418,12 +333,12 @@ const CrosswordGrid = () => {
 
     const getActiveClue = () => {
         const { row, col, direction } = cursor || {}
-        const { start } = findWordBoundaries(cells, row, col, direction)
+        const { wordStart } = findWordBoundaries(cells, cursor)
         if (direction === 'across') {
-            const activeClueNumber = cells[row][start]?.number
+            const activeClueNumber = cells[row][wordStart]?.number
             return clues.across.find((clue) => clue[0] === activeClueNumber)
         } else {
-            const activeClueNumber = cells[start][col]?.number
+            const activeClueNumber = cells[wordStart][col]?.number
             return clues.down.find((clue) => clue[0] === activeClueNumber)
         }
     }
@@ -465,20 +380,15 @@ const CrosswordGrid = () => {
 
     const incrementCursor = useCallback(() => {
         setCursor((prevCursor) => {
-            const { end } = findWordBoundaries(
-                cells,
-                prevCursor.row,
-                prevCursor.col,
-                prevCursor.direction
-            )
-            if (prevCursor.direction === 'across' && prevCursor.col < end) {
+            const { wordEnd } = findWordBoundaries(cells, prevCursor)
+            if (prevCursor.direction === 'across' && prevCursor.col < wordEnd) {
                 return {
                     row: prevCursor.row,
                     col: prevCursor.col + 1,
                     direction: prevCursor.direction,
                 }
             }
-            if (prevCursor.direction === 'down' && prevCursor.row < end) {
+            if (prevCursor.direction === 'down' && prevCursor.row < wordEnd) {
                 return {
                     row: prevCursor.row + 1,
                     col: prevCursor.col,
@@ -545,17 +455,12 @@ const CrosswordGrid = () => {
                         })
                     } else {
                         // If there is no letter, move back one cell
-                        const { start } = findWordBoundaries(
-                            cells,
-                            cursor.row,
-                            cursor.col,
-                            cursor.direction
-                        )
+                        const { wordStart } = findWordBoundaries(cells, cursor)
                         if (
                             (cursor.direction === 'across' &&
-                                cursor.col === start) ||
+                                cursor.col === wordStart) ||
                             (cursor.direction === 'down' &&
-                                cursor.row === start)
+                                cursor.row === wordStart)
                         ) {
                             // If at the start, move to the last letter of the previous word
                             const prevCursor = startOfNextWord(
@@ -564,11 +469,9 @@ const CrosswordGrid = () => {
                                 'backwards'
                             )
                             if (prevCursor) {
-                                const { end: prevEnd } = findWordBoundaries(
+                                const { wordEnd: prevEnd } = findWordBoundaries(
                                     cells,
-                                    prevCursor.row,
-                                    prevCursor.col,
-                                    cursor.direction
+                                    cursor
                                 )
                                 setCursor({
                                     row: prevCursor.row,
@@ -781,6 +684,8 @@ const CrosswordGrid = () => {
 
     const activeClue = getActiveClue()
 
+    const { wordStart, wordEnd } = findWordBoundaries(cells, cursor)
+
     return (
         <div className="crossword-container">
             <div className="grid-container no-select">
@@ -821,7 +726,9 @@ const CrosswordGrid = () => {
                                 className={getClassName(
                                     cell,
                                     rowIndex,
-                                    colIndex
+                                    colIndex,
+                                    wordStart,
+                                    wordEnd
                                 )}
                                 onClick={(event) =>
                                     handleCellClick(event, rowIndex, colIndex)
@@ -866,7 +773,11 @@ const CrosswordGrid = () => {
                     <ul>
                         {clues.across.map((clue) => (
                             <li
-                                className={getClueClassName(clue, 'across')}
+                                className={getClueClassName(
+                                    clue,
+                                    'across',
+                                    wordStart
+                                )}
                                 key={`across-${clue[0]}`}
                             >
                                 <span className="clue-number">{clue[0]}</span>
@@ -882,7 +793,11 @@ const CrosswordGrid = () => {
                     <ul>
                         {clues.down.map((clue) => (
                             <li
-                                className={getClueClassName(clue, 'down')}
+                                className={getClueClassName(
+                                    clue,
+                                    'down',
+                                    wordStart
+                                )}
                                 key={`across-${clue[0]}`}
                             >
                                 <span className="clue-number">{clue[0]}</span>
